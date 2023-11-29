@@ -34,8 +34,11 @@ function PinBallMap({ lat, lon, pinballData }: Props) {
         reuseMaps
         ref={mapRef}
         mapboxAccessToken={process.env.REACT_APP_MAP_BOX_KEY}
-        longitude={bounds.longitude}
-        latitude={bounds.latitude}
+        initialViewState={{
+          longitude: bounds.longitude,
+          latitude: bounds.latitude,
+          zoom: zoom,
+        }}
         zoom={zoom}
         dragRotate={false}
         style={{ width: "100%", height: "100%", outline: "none" }}

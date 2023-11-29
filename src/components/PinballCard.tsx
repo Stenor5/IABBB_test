@@ -2,7 +2,7 @@ import React from "react";
 
 const PinballCard = ({ pinballData }: any) => {
   return (
-    <div className="max-w-sm bg-white border border-gray-300 p-4 rounded-md shadow-md">
+    <div className="max-w-sm mx-auto md:mx-0 bg-white border border-gray-300 p-4 mb-4 md:mt-0 rounded-md shadow-md">
       <h2 className="text-xl font-bold mb-2">{pinballData.name}</h2>
       <p className="text-gray-600 mb-2">
         {pinballData.city}, {pinballData.country}

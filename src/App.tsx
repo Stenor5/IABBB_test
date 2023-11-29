@@ -3,12 +3,16 @@ import "mapbox-gl/dist/mapbox-gl.css";
 import { useClosestLocation } from "./hooks/useClosestLocation";
 import PinballCard from "./components/PinballCard";
 import PinBallMap from "./components/PinBallMap";
+import Spinner from "./components/Icons/Spinner";
+import InfoAlert from "./components/Alerts/InfoAlert";
 
 function App() {
   const [latitude, setLatitude] = useState<number>(0);
   const [longitude, setLongitude] = useState<number>(0);
+  const [invalidLat, setInvalidLat] = useState(false);
+  const [invalidLon, setInvalidLon] = useState(false);
 
-  const { isLoading, getClosestLocation, closestLocations } = useClosestLocation();
+  const { errorMsg, isLoading, getClosestLocation, closestLocations } = useClosestLocation();
   const getLocation = () => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
@@ -30,40 +34,72 @@ function App() {
   };
 
   return (
-    <div className="container mx-auto my-5">
-      <h1 className="text-3xl font-bold text-center my-10">Pinball Locations Near Me</h1>
+    <div className="container mx-auto px-2">
+      {errorMsg.length !== 0 && <InfoAlert msg={errorMsg} />}
+      <h1 className="text-3xl font-bold text-center py-10">Pinball Locations Near Me</h1>
       <div className="grid gap-6 md:grid-cols-3">
         <div className="mb-4">
           <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="latitude">
             Latitude
           </label>
           <input
-            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+            className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none ${
+              invalidLat ? "focus:border-red-400" : "focus:border-blue-400"
+            }  focus:shadow-outline`}
             id="latitude"
             type="number"
+            min={-90}
+            max={90}
+            step={0.1}
             onChange={(e) => {
-              setLatitude(parseFloat(e.target.value || "0"));
+              if (parseFloat(e.target.value) > 90 || parseFloat(e.target.value) < -90) {
+                setInvalidLat(true);
+                setTimeout(function () {
+                  setInvalidLat(false);
+                }, 3000);
+              } else {
+                setLatitude(parseFloat(e.target.value || "0"));
+              }
             }}
             value={latitude || ""}
             placeholder="0.0000"
           />
+          {invalidLat && (
+            <p className="text-red-500 text-xs italic absolute">Latitude value must be between -90 and 90.</p>
+          )}
         </div>
         <div className="mb-4">
           <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="longitude">
             Longitude
           </label>
           <input
-            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+            className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline ${
+              invalidLon ? "focus:border-red-400" : "focus:border-blue-400"
+            }`}
             id="longitude"
             type="number"
+            min={-180}
+            max={180}
             onChange={(e) => {
-              setLongitude(parseFloat(e.target.value || "0"));
+              if (parseFloat(e.target.value) > 180 || parseFloat(e.target.value) < -180) {
+                setInvalidLon(true);
+                setTimeout(function () {
+                  setInvalidLon(false);
+                }, 3000);
+              } else {
+                setLongitude(parseFloat(e.target.value || "0"));
+              }
             }}
             value={longitude || ""}
             placeholder="0.0000"
           />
+          {invalidLon && (
+            <p className="text-red-500 text-xs italic absolute">
+              Longitude value must be between -180 and 180.
+            </p>
+          )}
         </div>
-        <div className="flex justify-start items-end mb-4 gap-3">
+        <div className="flex justify-start mx-auto md:mx-0 items-end mb-4 gap-3">
           <button
             className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
             onClick={getLocation}
@@ -75,31 +111,13 @@ function App() {
             className="inline-flex items-center bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
             onClick={handleSearch}
           >
-            {isLoading && (
-              <svg
-                aria-hidden="true"
-                role="status"
-                className="inline w-4 h-4 me-3 text-white animate-spin"
-                viewBox="0 0 100 101"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
-                  fill="#E5E7EB"
-                />
-                <path
-                  d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
-                  fill="currentColor"
-                />
-              </svg>
-            )}
+            {isLoading && <Spinner />}
             {isLoading ? "Searching" : "Search"}
           </button>
         </div>
       </div>
       {closestLocations && (
-        <div className="flex items-start my-4 gap-4">
+        <div className="md:flex md:items-start my-4 gap-4">
           <PinballCard pinballData={closestLocations} />
           <PinBallMap lat={latitude} lon={longitude} pinballData={closestLocations} />
         </div>
