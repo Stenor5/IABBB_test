@@ -5,8 +5,8 @@ import PinballCard from "./components/PinballCard";
 import PinBallMap from "./components/PinBallMap";
 
 function App() {
-  const [latitude, setLatitude] = useState<number>(0.0);
-  const [longitude, setLongitude] = useState<number>(0.0);
+  const [latitude, setLatitude] = useState<number>(0);
+  const [longitude, setLongitude] = useState<number>(0);
 
   const { isLoading, getClosestLocation, closestLocations } = useClosestLocation();
   const getLocation = () => {
@@ -31,6 +31,7 @@ function App() {
 
   return (
     <div className="container mx-auto my-5">
+      <h1 className="text-3xl font-bold text-center my-10">Pinball Locations Near Me</h1>
       <div className="grid gap-6 md:grid-cols-3">
         <div className="mb-4">
           <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="latitude">
@@ -41,9 +42,9 @@ function App() {
             id="latitude"
             type="number"
             onChange={(e) => {
-              setLatitude(parseFloat(e.target.value));
+              setLatitude(parseFloat(e.target.value || "0"));
             }}
-            value={latitude}
+            value={latitude || ""}
             placeholder="0.0000"
           />
         </div>
@@ -56,9 +57,9 @@ function App() {
             id="longitude"
             type="number"
             onChange={(e) => {
-              setLongitude(parseFloat(e.target.value));
+              setLongitude(parseFloat(e.target.value || "0"));
             }}
-            value={longitude}
+            value={longitude || ""}
             placeholder="0.0000"
           />
         </div>
@@ -98,10 +99,10 @@ function App() {
         </div>
       </div>
       {closestLocations && (
-        <>
+        <div className="flex items-start my-4 gap-4">
           <PinballCard pinballData={closestLocations} />
           <PinBallMap lat={latitude} lon={longitude} pinballData={closestLocations} />
-        </>
+        </div>
       )}
     </div>
   );

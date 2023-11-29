@@ -8,8 +8,15 @@ export const useClosestLocation = () => {
 
   const getClosestLocation = useCallback(async (latitude: number, longitude: number) => {
     setIsLoading(true);
-    const data = await getClosestLocationByLatAndLon(latitude, longitude);
-    setClosestLocations(data?.location);
+    try {
+      const data = await getClosestLocationByLatAndLon(latitude, longitude);
+      if (data.errors) {
+        window.alert(data.errors);
+      }
+      setClosestLocations(data?.location);
+    } catch (error) {
+      console.error(error);
+    }
     setIsLoading(false);
   }, []);
 
