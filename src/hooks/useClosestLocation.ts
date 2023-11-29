@@ -10,6 +10,7 @@ export const useClosestLocation = () => {
     setIsLoading(true);
     const data = await getClosestLocationByLatAndLon(latitude, longitude);
     setClosestLocations(data?.location);
+    setIsLoading(false);
   }, []);
 
   return {
